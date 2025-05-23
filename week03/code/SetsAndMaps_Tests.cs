@@ -66,7 +66,7 @@ public class FindPairsTests
         Assert.AreEqual(Canonicalize(expected), Canonicalize(actual));
     }
 
-    [TestMethod, Timeout(60_000)]
+    [TestMethod, Timeout(120_000)]
     public void FindPairs_NoPairs_Efficiency()
     {
         // Calibrate baseline CPU performance

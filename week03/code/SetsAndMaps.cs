@@ -21,8 +21,30 @@ public static class SetsAndMaps
     /// <param name="words">An array of 2-character words (lowercase, no duplicates)</param>
     public static string[] FindPairs(string[] words)
     {
-        // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        var wordSet = new HashSet<string>();
+        var result = new List<string>();
+
+        foreach (var word in words)
+        {
+            if (word.Length != 2) continue; // Ensure it's a 2-letter word
+
+            char char1 = word[0];
+            char char2 = word[1];
+
+            string reversedWord = $"{char2}{char1}";
+
+            if (wordSet.Contains(reversedWord) && word != reversedWord)
+            {
+                result.Add($"{reversedWord} & {word}");
+                wordSet.Remove(reversedWord); // Remove to avoid duplicates in output
+            }
+            else
+            {
+                wordSet.Add(word);
+            }
+        }
+
+        return result.ToArray();
     }
 
     /// <summary>
@@ -42,7 +64,21 @@ public static class SetsAndMaps
         foreach (var line in File.ReadLines(filename))
         {
             var fields = line.Split(",");
-            // TODO Problem 2 - ADD YOUR CODE HERE
+            if (fields.Length > 3) // Ensure there is a 4th column
+            {
+                var degree = fields[3].Trim();
+                if (!string.IsNullOrEmpty(degree))
+                {
+                    if (degrees.ContainsKey(degree))
+                    {
+                        degrees[degree]++;
+                    }
+                    else
+                    {
+                        degrees[degree] = 1;
+                    }
+                }
+            }
         }
 
         return degrees;
@@ -66,8 +102,46 @@ public static class SetsAndMaps
     /// </summary>
     public static bool IsAnagram(string word1, string word2)
     {
-        // TODO Problem 3 - ADD YOUR CODE HERE
-        return false;
+        if (string.IsNullOrEmpty(word1) || string.IsNullOrEmpty(word2))
+        {
+            return word1 == word2;
+        }
+
+        int[] charCounts = new int[26];
+
+        foreach (char c in word1)
+        {
+            if (char.IsLetter(c))
+            {
+                char lowerC = char.ToLower(c);
+                if (lowerC >= 'a' && lowerC <= 'z')
+                {
+                    charCounts[lowerC - 'a']++;
+                }
+            }
+        }
+
+        foreach (char c in word2)
+        {
+            if (char.IsLetter(c))
+            {
+                char lowerC = char.ToLower(c);
+                if (lowerC >= 'a' && lowerC <= 'z')
+                {
+                    charCounts[lowerC - 'a']--;
+                }
+            }
+        }
+
+        for (int i = 0; i < 26; i++)
+        {
+            if (charCounts[i] != 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -81,7 +155,7 @@ public static class SetsAndMaps
     /// Additional information about the format of the JSON data can be found 
     /// at this website:  
     /// 
-    /// https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
+    /// https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson
     /// 
     /// </summary>
     public static string[] EarthquakeDailySummary()
@@ -96,11 +170,19 @@ public static class SetsAndMaps
 
         var featureCollection = JsonSerializer.Deserialize<FeatureCollection>(json, options);
 
-        // TODO Problem 5:
-        // 1. Add code in FeatureCollection.cs to describe the JSON using classes and properties 
-        // on those classes so that the call to Deserialize above works properly.
-        // 2. Add code below to create a string out each place a earthquake has happened today and its magitude.
-        // 3. Return an array of these string descriptions.
-        return [];
+        var earthquakeSummaries = new List<string>();
+
+        if (featureCollection?.Features != null)
+        {
+            foreach (var feature in featureCollection.Features)
+            {
+                if (feature?.Properties != null)
+                {
+                    earthquakeSummaries.Add($"{feature.Properties.Place} - Mag {feature.Properties.Mag}");
+                }
+            }
+        }
+
+        return earthquakeSummaries.ToArray();
     }
 }
